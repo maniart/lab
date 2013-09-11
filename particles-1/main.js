@@ -1,48 +1,81 @@
 ;(function(w) {
 
 	'use strict';
-	console.log('Starting from scratch');
 
+		// Vars
 	var canvas = document.getElementById('canvas'),
 		ctx = canvas.getContext('2d'),
 		W = w.innerWidth,
 		H = w.innerHeight,
 		numParticles = 150,
 		particles = [],
-		Particle = function(x, y) {
+		// Particle constructor
+		Particle = function() {
 			this.x = Math.random() * W;
 			this.y = Math.random() * H;
-			this.radius = 4;
-
+			this.vx = -1 + Math.random() * 2;
+			this.vy = -1 + Math.random() * 2;
 		};
-		canvas.width = W;
-		canvas.height = H;
-		ctx.fillStyle = "rgba(0,0,0,1)";
-	
-	// This will create a rectangle of white color from the 
-	// top left (0,0) to the bottom right corner (W,H)
-	ctx.fillRect(0,0,W,H);
-		Particle.prototype.draw = function() {
-			ctx.fillStyle = "white";
-			ctx.beginPath();
-			ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-			console.log('drawing myself');
-		};
-
-	function setup() {
-		for (var i = numParticles - 1; i >= 0; i--) {
-			particles.push(new Particle);
-				
-		};
-		console.log(particles);
+	// Setting up the stage
+	canvas.width = W;
+	canvas.height = H;
+	ctx.fillStyle = "rgba(0,0,0,1)";
+	ctx.fillRect(0 ,0 ,W ,H);
+	// Shared members
+	Particle.prototype.draw = function() {
+		ctx.fillStyle = "white";
+		ctx.beginPath();
+		ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+		ctx.fill();
+	};
+	Particle.prototype.update = function() {
+		this.y += this.vy;
+		this.x += this.vx;
 		
 
 	};
+	Particle.prototype.collision = function() {
+		
+			if (this.x < 0) {
+				this.vx *= -1;
+			} else if (this.x > W) {
+				this.vx *= -1
+			}
+			if (this.y < 0) {
+				this.vy *= -1;
+			} else if (this.y > H) {
+				this.vy *= -1
+			}
+	};
+	Particle.prototype.radius = 1;
+	function clear() {
+		ctx.fillStyle = "black"
+		ctx.fillRect(0, 0, W, H);
+	};
+	function setup() {
+		for (var i = numParticles - 1; i >= 0; i--) {
+			particles.push(new Particle);
+					
+		};
+		//console.log(particles);
+	};
 
 	function draw() {
-		for (var i = particles.length - 1; i >= 0; i--) {
+		clear();
+		for (var i = particles.length - 1; i >= 0; i --) {
 			particles[i].draw();
+			ctx.fillStyle = "white";
 		};
+		requestAnimFrame(draw);	
+	};
+
+	function update() {
+		
+		for (var i = particles.length - 1; i >= 0; i --) {
+			particles[i].update();
+			particles[i].collision();
+		};
+		requestAnimFrame(update);
 	};
 
 	function loop() {
@@ -51,8 +84,9 @@
 
 	function init() {
 		setup();
+		update();
 		draw();
-		loop();
+		//loop();
 	};
 
 
