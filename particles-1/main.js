@@ -7,8 +7,10 @@
 		ctx = canvas.getContext('2d'),
 		W = w.innerWidth,
 		H = w.innerHeight,
-		numParticles = 150,
+		numParticles = 20,
+		minDist = 150,
 		particles = [],
+		dist,
 		// Particle constructor
 		Particle = function() {
 			this.x = Math.random() * W;
@@ -28,65 +30,84 @@
 		ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
 		ctx.fill();
 	};
-	Particle.prototype.update = function() {
-		this.y += this.vy;
-		this.x += this.vx;
-		
-
-	};
-	Particle.prototype.collision = function() {
-		
-			if (this.x < 0) {
-				this.vx *= -1;
-			} else if (this.x > W) {
-				this.vx *= -1
-			}
-			if (this.y < 0) {
-				this.vy *= -1;
-			} else if (this.y > H) {
-				this.vy *= -1
-			}
-	};
 	Particle.prototype.radius = 1;
+	
+	function distance(p1, p2) {
+		var dx = p1.x - p2.x,
+			dy = p2.y - p2.y;
+		dist = Math.sqrt(dx * dx + dy * dy);
+		if (dist <= minDist) {
+			ctx.beginPath();
+			ctx.strokeStyle = "rgba(255,255,255,"+ (1.2-dist/minDist) +")";
+
+			ctx.moveTo(p1.x, p1.y);
+			ctx.lineTo(p2.x, p2.y);
+			ctx.stroke();
+			ctx.closePath();
+			var ax = dx / 2000,
+				ay = dy / 2000;
+			p1.vx -= ax;
+			p1.vy -= ay;	
+			p2.vx += ax;
+			p2.vy += ay;
+		}	
+	};
+
 	function clear() {
 		ctx.fillStyle = "black"
 		ctx.fillRect(0, 0, W, H);
 	};
 	function setup() {
 		for (var i = numParticles - 1; i >= 0; i--) {
-			particles.push(new Particle);
-					
+			particles.push(new Particle());
+				
 		};
 		//console.log(particles);
 	};
 
+
+	function update() {
+		var particle1,
+			particle2;
+
+		for (var i = 0; i < particles.length; i ++) {
+			particle1 = particles[i]; 
+			
+			particle1.x += particle1.vx;
+			particle1.y += particle1.vy;
+
+			if (particle1.x > W) {
+				particle1.x = 0; 
+			} else if (particle1.x < 0) {
+				particle1.x = W;
+			}
+			if (particle1.y > H) {
+				particle1.y = 0; 
+			} else if (particle1.y < 0) {
+				particle1.y = H;
+			}
+			for(var j = i + 1; j < particles.length; j++) {
+				particle2 = particles[j];
+				distance(particle1, particle2);
+			}
+
+	
+		}
+	};
 	function draw() {
 		clear();
 		for (var i = particles.length - 1; i >= 0; i --) {
 			particles[i].draw();
-			ctx.fillStyle = "white";
 		};
-		requestAnimFrame(draw);	
+		update();	
 	};
-
-	function update() {
-		
-		for (var i = particles.length - 1; i >= 0; i --) {
-			particles[i].update();
-			particles[i].collision();
-		};
-		requestAnimFrame(update);
-	};
-
 	function loop() {
+		draw();
 		requestAnimFrame(loop);
 	};
-
 	function init() {
 		setup();
-		update();
-		draw();
-		//loop();
+		loop();
 	};
 
 
