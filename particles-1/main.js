@@ -7,7 +7,7 @@
 		ctx = canvas.getContext('2d'),
 		W = w.innerWidth,
 		H = w.innerHeight,
-		numParticles = 200,
+		numParticles = 140,
 		minDist = 100,
 		particles = [],
 		dist,
@@ -56,7 +56,7 @@
 	};
 
 	function clear() {
-		ctx.fillStyle = "white"
+		ctx.fillStyle = "rgba(255,255,255,.3)"
 		ctx.fillRect(0, 0, W, H);
 	};
 	function setup() {
