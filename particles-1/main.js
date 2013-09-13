@@ -7,8 +7,8 @@
 		ctx = canvas.getContext('2d'),
 		W = w.innerWidth,
 		H = w.innerHeight,
-		numParticles = 20,
-		minDist = 150,
+		numParticles = 200,
+		minDist = 100,
 		particles = [],
 		dist,
 		// Particle constructor
@@ -21,11 +21,11 @@
 	// Setting up the stage
 	canvas.width = W;
 	canvas.height = H;
-	ctx.fillStyle = "rgba(0,0,0,1)";
-	ctx.fillRect(0 ,0 ,W ,H);
+	ctx.fillStyle = "rgba(255,255,255,1)";
+	ctx.fillRect(0, 0, W, H);
 	// Shared members
 	Particle.prototype.draw = function() {
-		ctx.fillStyle = "white";
+		ctx.fillStyle = "black";
 		ctx.beginPath();
 		ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
 		ctx.fill();
@@ -34,31 +34,33 @@
 	
 	function distance(p1, p2) {
 		var dx = p1.x - p2.x,
-			dy = p2.y - p2.y;
+			dy = p1.y - p2.y;
 		dist = Math.sqrt(dx * dx + dy * dy);
 		if (dist <= minDist) {
+			
 			ctx.beginPath();
-			ctx.strokeStyle = "rgba(255,255,255,"+ (1.2-dist/minDist) +")";
+			ctx.strokeStyle = "rgba(0,0,0,"+ (.4-dist/minDist) +")";
 
 			ctx.moveTo(p1.x, p1.y);
 			ctx.lineTo(p2.x, p2.y);
 			ctx.stroke();
+			
 			ctx.closePath();
 			var ax = dx / 2000,
 				ay = dy / 2000;
-			p1.vx -= ax;
-			p1.vy -= ay;	
-			p2.vx += ax;
-			p2.vy += ay;
+			p1.vx -= .2 * ax;
+			p1.vy -= .2 * ay;	
+			p2.vx += .2 * ax;
+			p2.vy += .2 * ay;
 		}	
 	};
 
 	function clear() {
-		ctx.fillStyle = "black"
+		ctx.fillStyle = "white"
 		ctx.fillRect(0, 0, W, H);
 	};
 	function setup() {
-		for (var i = numParticles - 1; i >= 0; i--) {
+		for (var i = numParticles; i >= 0; i--) {
 			particles.push(new Particle());
 				
 		};
@@ -77,19 +79,21 @@
 			particle1.y += particle1.vy;
 
 			if (particle1.x > W) {
-				particle1.x = 0; 
+				particle1.vx *= -1; 
 			} else if (particle1.x < 0) {
-				particle1.x = W;
+				particle1.vx *= -1;
 			}
 			if (particle1.y > H) {
-				particle1.y = 0; 
+				particle1.vy *= -1; 
 			} else if (particle1.y < 0) {
-				particle1.y = H;
+				particle1.vy *= -1;
 			}
+			
 			for(var j = i + 1; j < particles.length; j++) {
 				particle2 = particles[j];
 				distance(particle1, particle2);
 			}
+
 
 	
 		}
