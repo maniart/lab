@@ -12,35 +12,24 @@
 		args = {
 			radius : 1,
 			minDist : 100,
-			blur : 1,
-			colors: [
-				'rgba(100,200,300)',
-				'rgba(200,0,22)',
-				'rgba(255,23,200)'
-			],
-
+			blur : 3,
+			opacity: .2,
 			isColor : false,
+			colors: randomize([
+				[100,200,300], [200,0,22], [255,23,200]
+			]),
+			color: function() {
+				//console.log(this.isColor);
+				return this.isColor ? setOpacity((this.colors), args.opacity) : setOpacity([0, 0, 0], args.opacity);
+			},
 			toggleColor: function() {
-				console.log(args.isColor);
-				args.isColor != args.isColor;
-
-				if (this.isColor) {
-					for (var i = particles.length ; i > 0 ; i -= 1) {
-						return colors[ Math.floor(Math.random() * 3) ];	
-					}
-				} else {
-					for (var i = particles.length ; i > 0 ; i -= 1) {
-						return 'rgba(0,0,0,1)';	
-					}
-				}
-
-			} 
+				this.isColor = !this.isColor;	
+			}
 		},
 		// Particle constructor
 		Particle = function(args) {
 			this.x = Math.random() * W;
 			this.y = Math.random() * H;
-			this.color = 'rgba(0,0,0,1)';
 			this.vx = -1 + Math.random() * 2;
 			this.vy = -1 + Math.random() * 2;
 			this.radius = args.radius;
@@ -53,19 +42,34 @@
 	// Shared members
 	//Particle.prototype.radius = 1;
 	Particle.prototype.draw = function() {
-		ctx.fillStyle = this.color;
+		ctx.fillStyle = args.color();
+		//console.log(this.color);
 		ctx.beginPath();
 		ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
 		ctx.fill();
+	};
+	function randomize(arr) {
+		var len = arr.length,
+			idx = Math.floor(Math.random() * len);
+		//console.log(arr);
+		return arr[idx];
 	};	
+	function setOpacity(rgb, opacity) {
+		var r = rgb[0],
+			g = rgb[1],
+			b = rgb[2],
+			color;
+		color = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + opacity + ')';
+		//console.log(rgb);
+		return color; 
+	}
 	function distance(p1, p2) {
 		var dx = p1.x - p2.x,
 			dy = p1.y - p2.y;
 		dist = Math.sqrt(dx * dx + dy * dy);
 		if (dist <= args.minDist) {
-			
 			ctx.beginPath();
-			ctx.strokeStyle = "rgba(0,0,0,"+ (.4-dist/args.minDist) +")";
+			ctx.strokeStyle = args.color();
 
 			ctx.moveTo(p1.x, p1.y);
 			ctx.lineTo(p2.x, p2.y);
@@ -139,6 +143,7 @@
 	    gui.add(args, 'radius', 0, 10).step(1);
 	    gui.add(args, 'minDist', 100, 200).step(1);
 		gui.add(args, 'blur', 1, 100).step(1);
+		gui.add(args, 'opacity', 0, 1).step(.1);
 		gui.add(args, 'toggleColor');
 	};
 	function init() {
