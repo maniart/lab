@@ -1,5 +1,6 @@
 ;(function(w) {
 
+	/*jshint trailing:true */
 	'use strict';
 
 	// Vars
@@ -13,18 +14,23 @@
 			radius : 1,
 			minDist : 100,
 			blur : 3,
+			lineWidth : 1,
+			gitAddress : 'https://github.com/maniart/lab/tree/master/particles-1',
 			opacity: .2,
 			isColor : false,
-			colors: randomize([
-				[100,200,300], [200,0,22], [255,23,200]
-			]),
-			color: function() {
-				//console.log(this.isColor);
-				return this.isColor ? setOpacity((this.colors), args.opacity) : setOpacity([0, 0, 0], args.opacity);
+			colors: [
+				[0, 181, 100], [51, 163, 189], [190, 204, 59]
+			],
+			setColor: function() {
+				return this.isColor ? setOpacity(randomize(this.colors), args.opacity) : setOpacity([0, 0, 0], args.opacity);
 			},
 			toggleColor: function() {
 				this.isColor = !this.isColor;	
+			},
+			gitHub: function() {
+				w.location = this.gitAddress;
 			}
+
 		},
 		// Particle constructor
 		Particle = function(args) {
@@ -42,7 +48,7 @@
 	// Shared members
 	//Particle.prototype.radius = 1;
 	Particle.prototype.draw = function() {
-		ctx.fillStyle = args.color();
+		ctx.fillStyle = args.setColor();
 		//console.log(this.color);
 		ctx.beginPath();
 		ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
@@ -69,8 +75,8 @@
 		dist = Math.sqrt(dx * dx + dy * dy);
 		if (dist <= args.minDist) {
 			ctx.beginPath();
-			ctx.strokeStyle = args.color();
-
+			ctx.strokeStyle = args.setColor();
+			ctx.lineWidth = args.lineWidth;
 			ctx.moveTo(p1.x, p1.y);
 			ctx.lineTo(p2.x, p2.y);
 			ctx.stroke();
@@ -142,9 +148,11 @@
 	    gui.remember(args);
 	    gui.add(args, 'radius', 0, 10).step(1);
 	    gui.add(args, 'minDist', 100, 200).step(1);
+		gui.add(args, 'lineWidth', 1, 5).step(1);
 		gui.add(args, 'blur', 1, 100).step(1);
 		gui.add(args, 'opacity', 0, 1).step(.1);
 		gui.add(args, 'toggleColor');
+		gui.add(args, 'gitHub');
 	};
 	function init() {
 		setup(args);
